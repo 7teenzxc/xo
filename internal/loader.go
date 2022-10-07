@@ -261,14 +261,18 @@ func (tl TypeLoader) LoadSchema(args *ArgType) error {
 		return err
 	}
 
-	// load tables
-	tableMap, err := tl.LoadRelkind(args, Table)
+	// load partitioned tables
+	partitionedTablesMap, err := tl.LoadRelkind(args, PartitionedTable)
 	if err != nil {
 		return err
 	}
 
-	// load partitioned tables
-	partitionMap, err := tl.LoadRelkind(args, Partition)
+	for pt := range partitionedTablesMap {
+		args.ExcludeTables = append(args.ExcludeTables, regexp.QuoteMeta(pt)+"_.*")
+	}
+
+	// load tables
+	tableMap, err := tl.LoadRelkind(args, Table)
 	if err != nil {
 		return err
 	}
@@ -285,8 +289,8 @@ func (tl TypeLoader) LoadSchema(args *ArgType) error {
 			tableMap[k] = v
 		}
 
-		if partitionMap != nil {
-			partitionMap[k] = v
+		if partitionedTablesMap != nil {
+			partitionedTablesMap[k] = v
 		}
 	}
 
@@ -304,15 +308,15 @@ func (tl TypeLoader) LoadSchema(args *ArgType) error {
 		}
 	}
 
-	if partitionMap != nil {
+	if partitionedTablesMap != nil {
 		// load foreign keys for loaded partitioned tables
-		_, err = tl.LoadForeignKeys(args, partitionMap)
+		_, err = tl.LoadForeignKeys(args, partitionedTablesMap)
 		if err != nil {
 			return err
 		}
 
 		// load indexes for loaded partitioned tables
-		_, err = tl.LoadIndexes(args, partitionMap)
+		_, err = tl.LoadIndexes(args, partitionedTablesMap)
 		if err != nil {
 			return err
 		}

@@ -43,7 +43,7 @@ func PgRelkind(relType internal.RelType) string {
 		s = "r"
 	case internal.View:
 		s = "v"
-	case internal.Partition:
+	case internal.PartitionedTable:
 		s = "p"
 	default:
 		panic("unsupported RelType")
