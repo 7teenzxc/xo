@@ -267,27 +267,55 @@ func (tl TypeLoader) LoadSchema(args *ArgType) error {
 		return err
 	}
 
+	// load partitioned tables
+	partitionMap, err := tl.LoadRelkind(args, Partition)
+	if err != nil {
+		return err
+	}
+
 	// load views
 	viewMap, err := tl.LoadRelkind(args, View)
 	if err != nil {
 		return err
 	}
 
-	// merge views with the tableMap
+	// merge views with the tableMap and/or partitionMap
 	for k, v := range viewMap {
-		tableMap[k] = v
+		if tableMap != nil {
+			tableMap[k] = v
+		}
+
+		if partitionMap != nil {
+			partitionMap[k] = v
+		}
 	}
 
-	// load foreign keys
-	_, err = tl.LoadForeignKeys(args, tableMap)
-	if err != nil {
-		return err
+	if tableMap != nil {
+		// load foreign keys for loaded tables
+		_, err = tl.LoadForeignKeys(args, tableMap)
+		if err != nil {
+			return err
+		}
+
+		// load indexes for loaded tables
+		_, err = tl.LoadIndexes(args, tableMap)
+		if err != nil {
+			return err
+		}
 	}
 
-	// load indexes
-	_, err = tl.LoadIndexes(args, tableMap)
-	if err != nil {
-		return err
+	if partitionMap != nil {
+		// load foreign keys for loaded partitioned tables
+		_, err = tl.LoadForeignKeys(args, partitionMap)
+		if err != nil {
+			return err
+		}
+
+		// load indexes for loaded partitioned tables
+		_, err = tl.LoadIndexes(args, partitionMap)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

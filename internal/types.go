@@ -54,6 +54,9 @@ const (
 
 	// View reltype
 	View
+
+	//Partition reltype
+	Partition
 )
 
 // EscType represents the different escape types.
@@ -73,6 +76,8 @@ func (rt RelType) String() string {
 		s = "TABLE"
 	case View:
 		s = "VIEW"
+	case Partition:
+		s = "PARTITION"
 	default:
 		panic("unknown RelType")
 	}
