@@ -55,7 +55,7 @@ const (
 	// View reltype
 	View
 
-	//Partition reltype
+	//Partitioned table reltype
 	PartitionedTable
 )
 

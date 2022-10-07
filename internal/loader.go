@@ -283,7 +283,7 @@ func (tl TypeLoader) LoadSchema(args *ArgType) error {
 		return err
 	}
 
-	// merge views with the tableMap and/or partitionMap
+	// merge views with the tableMap and/or partitionedTablesMap
 	for k, v := range viewMap {
 		if tableMap != nil {
 			tableMap[k] = v
